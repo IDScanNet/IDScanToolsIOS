@@ -69,12 +69,14 @@ public class IDSLocationManager: NSObject, CLLocationManagerDelegate {
     }
     
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if let block = self.updateLocationBlock, locations.count > 0 {
+        if locations.count > 0 {
             self._lastLocation = locations.first
             self.lastLocationTime = CFAbsoluteTimeGetCurrent()
             
-            block(self._lastLocation, nil)
-            self.updateLocationBlock = nil
+            if let block = self.updateLocationBlock {
+                block(self._lastLocation, nil)
+                self.updateLocationBlock = nil
+            }
         }
     }
     

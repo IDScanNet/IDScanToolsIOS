@@ -142,6 +142,10 @@ public class IDSSystemInfo {
     public var screenScale: CGFloat {
         UIScreen.main.scale
     }
+    
+    public var deviceOrientation: UIDeviceOrientation {
+        UIDevice.current.orientation
+    }
 }
 
 // MARK: - JailBrokenHelper (https://github.com/developerinsider/isJailBroken/blob/master/IsJailBroken/Extension/UIDevice%2BJailBroken.swift)
