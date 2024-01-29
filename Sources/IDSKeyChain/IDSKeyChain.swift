@@ -5,7 +5,6 @@
 //  Created by su on 01.10.2020.
 //  Copyright © 2020 Moleculus. All rights reserved.
 //
-// https://github.com/dagostini/DAKeychain/blob/master/DAKeychain/Classes/DAKeychain.swift
 
 import Foundation
 import Security
@@ -13,38 +12,42 @@ import Security
 public class IDSKeyChain {
     public static var loggingEnabled = false
     
-    public class subscript(key: String) -> String? {
+    public class subscript(key: String) -> Any? {
         get {
             return load(withKey: key)
         } set {
             DispatchQueue.global().sync(flags: .barrier) {
-                self.save(newValue, forKey: key)
+                self.save(Data(from: newValue), forKey: key)
             }
         }
     }
     
-    class private func save(_ string: String?, forKey key: String) {
+    @discardableResult public class func save(_ data: Data?, forKey key: String) -> OSStatus {
         let query = keychainQuery(withKey: key)
-        let objectData: Data? = string?.data(using: .utf8, allowLossyConversion: false)
         
         if SecItemCopyMatching(query, nil) == noErr {
-            if let dictData = objectData {
-                let status = SecItemUpdate(query, NSDictionary(dictionary: [kSecValueData: dictData]))
+            if let data = data {
+                let status = SecItemUpdate(query, NSDictionary(dictionary: [kSecValueData: data]))
                 logPrint("Update status: ", status)
+                return status
             } else {
                 let status = SecItemDelete(query)
                 logPrint("Delete status: ", status)
+                return status
             }
         } else {
-            if let dictData = objectData {
-                query.setValue(dictData, forKey: kSecValueData as String)
+            if let data = data {
+                query.setValue(data, forKey: kSecValueData as String)
                 let status = SecItemAdd(query, nil)
                 logPrint("Update status: ", status)
+                return status
+            } else {
+                return noErr
             }
         }
     }
     
-    class private func load(withKey key: String) -> String? {
+    public class func load(withKey key: String) -> Data? {
         let query = keychainQuery(withKey: key)
         query.setValue(kCFBooleanTrue, forKey: kSecReturnData as String)
         query.setValue(kCFBooleanTrue, forKey: kSecReturnAttributes as String)
@@ -60,7 +63,14 @@ public class IDSKeyChain {
             logPrint("Load status: ", status)
             return nil
         }
-        return String(data: resultsData, encoding: .utf8)
+        return resultsData
+    }
+    
+    @discardableResult public class func remove(withKey key: String) -> OSStatus {
+        let query = keychainQuery(withKey: key)
+        let status = SecItemDelete(query)
+        logPrint("Delete status: ", status)
+        return status
     }
     
     class private func keychainQuery(withKey key: String) -> NSMutableDictionary {
@@ -75,5 +85,17 @@ public class IDSKeyChain {
         if loggingEnabled {
             print(items)
         }
+    }
+}
+
+public extension Data {
+    init<T>(from value: T) {
+        self = withUnsafePointer(to: value) { (ptr: UnsafePointer<T>) -> Data in
+            return Data(buffer: UnsafeBufferPointer(start: ptr, count: 1))
+        }
+    }
+    
+    func to<T>(type: T.Type) -> T {
+        return self.withUnsafeBytes { $0.load(as: T.self) }
     }
 }
