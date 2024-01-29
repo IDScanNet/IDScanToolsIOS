@@ -10,18 +10,31 @@ let package = Package(
     ],
     products: [
         .library(
+            name: "IDSCommonTools",
+            targets: ["IDSCommonTools"]),
+        .library(
             name: "IDSSystemInfo",
             targets: ["IDSSystemInfo"]),
         .library(
             name: "IDSLocationManager",
             targets: ["IDSLocationManager"]),
+        .library(
+            name: "IDSKeyChain",
+            targets: ["IDSKeyChain"])
     ],
     targets: [
         .target(
-            name: "IDSSystemInfo"
+            name: "IDSCommonTools"
+        ),
+        .target(
+            name: "IDSSystemInfo",
+            dependencies: ["IDSCommonTools", "IDSKeyChain"]
         ),
         .target(
             name: "IDSLocationManager"
+        ),
+        .target(
+            name: "IDSKeyChain"
         )
     ]
 )

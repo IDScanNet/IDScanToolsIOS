@@ -5,8 +5,9 @@
 //  Created by AKorotkov on 08.06.2023.
 //
 
-import Foundation
 import UIKit
+import IDSCommonTools
+import IDSKeyChain
 
 public class IDSSystemInfo {
     public init() {}
@@ -145,6 +146,16 @@ public class IDSSystemInfo {
     
     public var deviceOrientation: UIDeviceOrientation {
         UIDevice.current.orientation
+    }
+    
+    func getUUID() -> String? {
+        let kHardwareID = "kIDScanHardwareId"
+        if IDSKeyChain[kHardwareID] == nil {
+            let uuid = IDSCreateUniqueID()
+            IDSKeyChain[kHardwareID] = uuid
+        }
+        
+        return IDSKeyChain[kHardwareID]
     }
 }
 
