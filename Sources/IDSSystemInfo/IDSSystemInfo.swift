@@ -7,7 +7,7 @@
 
 import UIKit
 import IDSCommonTools
-import IDSKeyChain
+import KeychainSwift
 
 public class IDSSystemInfo {
     public init() {}
@@ -148,14 +148,17 @@ public class IDSSystemInfo {
         UIDevice.current.orientation
     }
     
-    func getUUID() -> String? {
+    public func getUUID() -> String? {
         let kHardwareID = "kIDScanHardwareId"
-        if IDSKeyChain[kHardwareID] == nil {
-            let uuid = IDSCreateUniqueID()
-            IDSKeyChain[kHardwareID] = uuid
+        let keychain = KeychainSwift()
+        
+        if let uuid = keychain.get(kHardwareID) {
+            return uuid
         }
         
-        return IDSKeyChain[kHardwareID]
+        let uuid = IDSCreateUniqueID()
+        keychain.set(uuid, forKey: kHardwareID)
+        return keychain.get(kHardwareID)
     }
 }
 

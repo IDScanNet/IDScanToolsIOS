@@ -17,10 +17,10 @@ let package = Package(
             targets: ["IDSSystemInfo"]),
         .library(
             name: "IDSLocationManager",
-            targets: ["IDSLocationManager"]),
-        .library(
-            name: "IDSKeyChain",
-            targets: ["IDSKeyChain"])
+            targets: ["IDSLocationManager"])
+    ],
+    dependencies: [
+        .package(name: "KeychainSwift", url: "https://github.com/evgenyneu/keychain-swift.git", from: "21.0.0")
     ],
     targets: [
         .target(
@@ -28,13 +28,13 @@ let package = Package(
         ),
         .target(
             name: "IDSSystemInfo",
-            dependencies: ["IDSCommonTools", "IDSKeyChain"]
+            dependencies: [
+                "IDSCommonTools",
+                .product(name: "KeychainSwift", package: "KeychainSwift")
+            ]
         ),
         .target(
             name: "IDSLocationManager"
-        ),
-        .target(
-            name: "IDSKeyChain"
         )
     ]
 )
