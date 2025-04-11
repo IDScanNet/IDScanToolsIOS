@@ -85,15 +85,10 @@ public class IDSSystemInfo {
      */
     
     public var isJailBroken: Bool {
-        if self.isSimulator { return false }
         if JailBrokenHelper.hasCydiaInstalled() { return true }
         if JailBrokenHelper.isContainsSuspiciousApps() { return true }
         if JailBrokenHelper.isSuspiciousSystemPathsExists() { return true }
         return JailBrokenHelper.canEditSystemFiles()
-    }
-    
-    public var isSimulator: Bool {
-        return TARGET_OS_SIMULATOR != 0
     }
     
     public var currentTimeZone: String {
